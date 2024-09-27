@@ -1,41 +1,40 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package cliente;
-
-/**
- *
- * @author yesicz
- */
 import java.io.*;
 import java.net.*;
 
 public class Cliente {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        final String HOST = "localhost";
+        final int PORT = 8080;
 
-        if (args.length != 2) {
-            System.err.println(
-                "Usage: java EchoClient <host name> <port number>");
-            System.exit(1);
+        try (Socket socket = new Socket(HOST, PORT);
+             DataInputStream in = new DataInputStream(socket.getInputStream());
+             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+
+            int num;
+
+            while (true) {
+                System.out.print("Ingrese un número entero (0 para salir): ");
+                num = Integer.parseInt(reader.readLine());
+
+                // Enviar el número al servidor
+                out.writeInt(num);
+                out.flush();
+
+                // Terminar si se envía cero
+                if (num == 0) {
+                System.out.print("Conexión terminada");
+                    break;
+                }
+
+                // Leer la respuesta del servidor
+                int resultado = num+1;
+                System.out.println("El servidor respondió: " + resultado);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
-        Socket firstSocket = new Socket(hostName, portNumber);
-        PrintWriter out = new PrintWriter(firstSocket.getOutputStream(), true);
-        BufferedReader in = new BufferedReader(new InputStreamReader(firstSocket.getInputStream()));
-        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-        String userInput;
-        while ((userInput = stdIn.readLine()) != null) 
-        {
-            out.println(userInput);
-            System.out.println("Recibi: " + in.readLine());
-        }
-        in.close();
-        stdIn.close();
-        firstSocket.close();
-
     }
 }
+
